@@ -18,7 +18,7 @@ boolean AABB::overlap(AABB &other) {
         || other.inside(x1, y1));
 }
 
-AABB AABB::from_corners(Vec2 &a, Vec2 &b, Vec2 &c, Vec2 &d) {
+AABB AABB::from_corners(Vec2 a, Vec2 b, Vec2 c, Vec2 d) {
     float left = fminf(fminf(fminf(a.get_x(), b.get_x()), c.get_x()), d.get_x());
     float right = fmaxf(fmaxf(fmaxf(a.get_x(), b.get_x()), c.get_x()), d.get_x());
     float top = fminf(fminf(fminf(a.get_y(), b.get_y()), c.get_y()), d.get_y());
