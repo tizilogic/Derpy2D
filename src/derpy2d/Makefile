@@ -8,7 +8,7 @@ MBEDTLS_DIR ?= $(CIRCLE_STDLIB_DIR)/libs/mbedtls
 NEWLIBDIR   ?= $(CIRCLE_STDLIB_DIR)/install/$(NEWLIB_ARCH)
 CIRCLEHOME  ?= $(CIRCLE_STDLIB_DIR)/libs/circle
 
-OBJS	= st7735.o vec.o matrix.o aabb.o
+OBJS	= st7735.o vec.o matrix.o aabb.o image.o graphics.o color.o # assets.o
 
 INCLUDE += \
 	   -I $(CIRCLE_STDLIB_DIR)/include \
@@ -17,7 +17,7 @@ INCLUDE += \
 	   -I ../../include
 
 CFLAGS += -DMBEDTLS_CONFIG_FILE='<circle-mbedtls/config-circle-mbedtls.h>'
-CFLAGS += -I "$(NEWLIBDIR)/include" -I $(STDDEF_INCPATH) -I ../../include
+CFLAGS += -I "$(NEWLIBDIR)/include" -I $(STDDEF_INCPATH) -I ../../include -std=c++11
 LIBS := "$(NEWLIBDIR)/lib/libm.a" "$(NEWLIBDIR)/lib/libc.a" "$(NEWLIBDIR)/lib/libcirclenewlib.a" \
  	$(CIRCLEHOME)/addon/SDCard/libsdcard.a \
   	$(CIRCLEHOME)/lib/usb/libusb.a \
