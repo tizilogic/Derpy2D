@@ -8,6 +8,16 @@ Vec2::Vec2(const float v) : x(v), y(v) {}
 
 Vec2::Vec2(const float x, const float y) : x(x), y(y) {}
 
+Vec2& Vec2::operator=(const Vec2& other) {
+    state = other.state;
+    x = other.x;
+    y = other.y;
+    len = other.len;
+    mag = other.mag;
+
+    return *this;
+}
+
 float Vec2::dot(const Vec2& other) {
     return x * other.x + y * other.y;
 }
