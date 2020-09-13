@@ -43,6 +43,14 @@ LCD::LCD(unsigned nClockSpeed, unsigned CPOL, unsigned CPHA, unsigned nDevice,
 	/* Display ON; Wait 100ms before start */
 	write_command(0x29);
 	CTimer::SimpleMsDelay(100);
+
+	set_orientation(orientation);  /* Hack to make the display responsive */
+
+	u8 buff[61440];  /* Clear the buffer to black */
+	for (int i = 0; i < 61440; ++i) {
+		buff[i] = 0;
+	}
+	draw_buffer(buff, 61440);
 }
 
 LCD::~LCD(void) {

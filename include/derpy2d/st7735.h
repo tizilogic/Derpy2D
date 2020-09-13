@@ -20,18 +20,31 @@
  * Without change, default value are selected.
  ******************************** CONFIGURATION *******************************/
 #define ST7735S_CFG_PIXEL ST7735S_PIXEL_FULL
+#define ST7735S_CLOCK_SPEED 30000000
+#define ST7735S_CPOL 0
+#define ST7735S_CPHA 0
+#define ST7735S_DEVICE 0
+#define ST7735S_ORIENTATION 3
+#define ST7735S_GAMMA 2
+#define ST7735S_A0 24
+#define ST7735S_RS 25
+#define ST7735S_SCREEN_WIDTH 160
+#define ST7735S_SCREEN_HEIGHT 128
+#define ST7735S_BUFFER_SIZE 61440
+#define ST7735S_SCREEN_SIZE 20480
 /**************************** END CONFIGURATION END ***************************/
 
 #include <circle/types.h>
-#include <circle/spimaster.h>
+#include <circle/spimaster.h>  /* TODO: Change to DMA */
 #include <circle/gpiopin.h>
 
 
 class LCD {
 public:
-    LCD(unsigned nClockSpeed = 30000000, unsigned CPOL = 0, unsigned CPHA = 0,
-        unsigned nDevice = 0, unsigned orientation = 0, unsigned gamma = 2,
-        unsigned a0 = 24, unsigned rs = 25);
+    LCD(unsigned nClockSpeed = ST7735S_CLOCK_SPEED, unsigned CPOL = ST7735S_CPOL,
+        unsigned CPHA = ST7735S_CPHA, unsigned nDevice = ST7735S_DEVICE,
+        unsigned orientation = ST7735S_ORIENTATION, unsigned gamma = ST7735S_GAMMA,
+        unsigned a0 = ST7735S_A0, unsigned rs = ST7735S_RS);
     ~LCD(void);
     void set_orientation(unsigned orientation = 0);
     void set_gamma(unsigned state = 2);
