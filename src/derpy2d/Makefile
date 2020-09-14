@@ -2,22 +2,31 @@
 # Makefile
 #
 
+include ../../Config.mk
+
 CIRCLE_STDLIB_DIR = ../../libs/circle-stdlib
 
-MBEDTLS_DIR ?= $(CIRCLE_STDLIB_DIR)/libs/mbedtls
 NEWLIBDIR   ?= $(CIRCLE_STDLIB_DIR)/install/$(NEWLIB_ARCH)
 CIRCLEHOME  ?= $(CIRCLE_STDLIB_DIR)/libs/circle
 
-OBJS	= st7735.o vec.o matrix.o aabb.o image.o graphics.o color.o # assets.o
+CPP	= $(CXX_FOR_TARGET)
+
+OBJS	= st7735.o vec.o matrix.o aabb.o image.o graphics.o color.o assets.o
+
+OPTIMIZE ?= -O2
+
+INCLUDE	+= -I $(CIRCLEHOME)/include -I $(CIRCLEHOME)/addon -I $(CIRCLEHOME)/app/lib \
+	   -I $(CIRCLEHOME)/addon/vc4 -I $(CIRCLEHOME)/addon/vc4/interface/khronos/include
+
+AFLAGS	+= $(ARCH) $(DEFINE) $(INCLUDE) $(OPTIMIZE)
+CFLAGS	+= $(ARCH) -Wall -fsigned-char -ffreestanding $(DEFINE) $(INCLUDE) $(OPTIMIZE) -g
+CPPFLAGS+= $(CFLAGS) -std=c++14
 
 INCLUDE += \
 	   -I $(CIRCLE_STDLIB_DIR)/include \
 	   -I $(NEWLIBDIR)/include \
-	   -I $(MBEDTLS_DIR)/include \
 	   -I ../../include
 
-CFLAGS += -DMBEDTLS_CONFIG_FILE='<circle-mbedtls/config-circle-mbedtls.h>'
-CFLAGS += -I "$(NEWLIBDIR)/include" -I $(STDDEF_INCPATH) -I ../../include -std=c++11
 LIBS := "$(NEWLIBDIR)/lib/libm.a" "$(NEWLIBDIR)/lib/libc.a" "$(NEWLIBDIR)/lib/libcirclenewlib.a" \
  	$(CIRCLEHOME)/addon/SDCard/libsdcard.a \
   	$(CIRCLEHOME)/lib/usb/libusb.a \
@@ -26,13 +35,16 @@ LIBS := "$(NEWLIBDIR)/lib/libm.a" "$(NEWLIBDIR)/lib/libc.a" "$(NEWLIBDIR)/lib/li
  	$(CIRCLEHOME)/lib/fs/libfs.a \
   	$(CIRCLEHOME)/lib/net/libnet.a \
   	$(CIRCLEHOME)/lib/sched/libsched.a \
-	$(CIRCLEHOME)/addon/qemu/libqemusupport.a \
   	$(CIRCLEHOME)/lib/libcircle.a
+
+%.o: %.cpp
+	@echo "  CPP   $@"
+	@$(CPP) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
 
 libderpy2d.a: $(OBJS)
 	@echo "  AR    $@"
 	@rm -f $@
 	@$(AR) cr $@ $(OBJS)
 
-include $(CIRCLEHOME)/Rules.mk
-
+clean:
+	rm -f *.d *.o *.a *.elf *.lst *.img *.hex *.cir *.map *~
