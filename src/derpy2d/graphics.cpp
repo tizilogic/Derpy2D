@@ -2,19 +2,25 @@
 #include "derpy2d/vec.h"
 #include "derpy2d/aabb.h"
 
+#include <assert.h>
+
 
 Graphics::Graphics(void) {
     transform = Matrix3::identity();
 }
 
 void Graphics::begin(boolean clear, Color color) {
+    assert(!drawing);
     if (clear) {
         clear_buffer(color);
     }
+    drawing = true;
 }
 
 void Graphics::end(LCD &display) {
+    assert(drawing);
     display.draw_buffer(buffer, 61440);
+    drawing = false;
 }
 
 void Graphics::clear_buffer(Color color) {
@@ -34,6 +40,7 @@ void Graphics::draw_image(Image &img, float x, float y) {
 
 void Graphics::draw_sub_image(Image &img, float x, float y, float sx, float sy,
                               float sw, float sh) {
+    assert(drawing);
     Vec2 origin = {x, y};
     Vec2 tl = {x, y};
     Vec2 tr = {x + sw - sx, y};
@@ -63,17 +70,20 @@ void Graphics::draw_sub_image(Image &img, float x, float y, float sx, float sy,
                 continue;
             }
             Color c = img.get_px(origin.get_x() + sx, origin.get_y() + sy);
-            if (c.a <= 0.5f) {
+
+            float real_a = c.a * opacity;
+            if (real_a <= 0.5f) {
                 continue;
             }
             unsigned pos = by * 160 + bx;
             float r = (float)buffer[pos * 3], g = (float)buffer[pos * 3 + 1],
                 b = (float)buffer[pos * 3 + 2], a = (float)alpha[pos];
-            float prc = c.a / (c.a + a);
+
+            float prc = real_a / (real_a + a);
             r = c.r * prc + r * (1.0f - prc);
             g = c.g * prc + g * (1.0f - prc);
             b = c.b * prc + b * (1.0f - prc);
-            a = c.a * prc + a * (1.0f - prc);
+            a = real_a * prc + a * (1.0f - prc);
             buffer[pos * 3] = (u8)b;
             buffer[pos * 3 + 1] = (u8)g;
             buffer[pos * 3 + 2] = (u8)r;
@@ -88,4 +98,9 @@ void Graphics::set_transform(Matrix3 t) {
 
 void Graphics::clear_transform(void) {
     transform = Matrix3::identity();
+}
+
+void Graphics::set_opacity(const float alpha) {
+    opacity = alpha;
+    opacity = opacity < 0.0f ? 0.0f : (opacity > 1.0f ? 1.0f : opacity);
 }

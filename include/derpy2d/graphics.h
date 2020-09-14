@@ -20,11 +20,13 @@ public:
     void draw_sub_image(Image &img, float x, float y, float sx, float sy, float sw, float sh);
     void set_transform(Matrix3 t);
     void clear_transform(void);
-    void set_opacity(void);
+    void set_opacity(const float alpha);
 private:
     Matrix3 transform;
     u8 buffer[ST7735S_BUFFER_SIZE];
     u8 alpha[ST7735S_SCREEN_SIZE];
+    float opacity = 1.0;
+    boolean drawing = false;
 };
 
 #endif // _GRAPHICS_HPP_
