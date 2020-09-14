@@ -102,7 +102,9 @@ void Image::load(void) {
         return;
     }
     read_size();
-    imgdata.reserve((unsigned)w * (unsigned)h);
+    const unsigned file_size = (unsigned)w * (unsigned)h * 4;
+    imgdata.reserve(file_size);
+    printf("Open file %s and read %d bytes of image data...", path.c_str(), file_size);
     FILE *fp = fopen(path.c_str(), "rb");
     assert(fp != nullptr);
     unsigned char buf[256];
@@ -120,6 +122,8 @@ void Image::load(void) {
         }
         len = fread(buf, 1, sizeof(buf), fp);
     }
+    printf("%d bytes\n", pos);
+    assert(pos == file_size);
     fclose(fp);
     loaded = true;
 }
