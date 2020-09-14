@@ -23,6 +23,7 @@
 #include "derpy2d/image.h"
 #include "derpy2d/color.h"
 #include "derpy2d/matrix.h"
+#include "derpy2d/assets.h"
 
 class CKernel : public CStdlibAppStdio
 {
@@ -34,6 +35,7 @@ public:
 private:
 	LCD display;
 	Graphics *graphics;
+	Assets assets;
 };
 
 #endif

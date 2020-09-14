@@ -25,7 +25,8 @@
 
 
 CKernel::CKernel(void)
-:	CStdlibAppStdio ("01-hello-world"), display(LCD()), graphics(new (HEAP_LOW) Graphics())
+:	CStdlibAppStdio ("02-image"), display(LCD()),
+	graphics(new (HEAP_LOW) Graphics()), assets()
 {
 	mActLED.Blink (2);	// show we are alive
 }
@@ -33,18 +34,30 @@ CKernel::CKernel(void)
 CStdlibApp::TShutdownMode CKernel::Run(void)
 {
 	mLogger.Write(GetKernelName(), LogNotice, "Image sample!");
-	mLogger.Write(GetKernelName(), LogNotice, "Loading image from disk");
-	Image img("assets/logo.raw");
-	img.load();
+
+	mLogger.Write(GetKernelName(), LogNotice, "Scanning for assets");
+	assets.scan();
+
+	mLogger.Write(GetKernelName(), LogNotice, "Loading images into memory");
+	Image& logo = assets.image("logo.raw");
+	Image& pluto = assets.image("pluto.raw");
+
 	mLogger.Write(GetKernelName(), LogNotice, "Entering main loop...");
 	Matrix3 t = Matrix3::scale(0.75, 0.75);
 	float x = 0.0f, y = 0.0f, sx = 0.6, sy = 0.4, r=0.0;
 	while (true) {
+		graphics->begin(true, Color::black());
+
+		graphics->set_opacity(1.0);
+		graphics->draw_image(pluto, 8.5f, 0.0f);
+
+		graphics->set_opacity(0.4);
 		graphics->set_transform(t * Matrix3::translation(x + 64.0f, y + 64.0f)
 								* Matrix3::rotation(r)
 								* Matrix3::translation(-64.0f, -64.0f));
-		graphics->begin(true, Color::black());
-		graphics->draw_image(img, 0.0f, 0.0f);
+		graphics->draw_image(logo, 0.0f, 0.0f);
+		graphics->clear_transform();
+
 		graphics->end(display);
 		x += sx;
 		y += sy;
