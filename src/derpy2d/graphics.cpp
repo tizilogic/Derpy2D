@@ -50,10 +50,10 @@ void Graphics::draw_sub_image(Image &img, float x, float y, float sx, float sy,
                                    transform * bl, transform * br);
     Matrix3 inv = transform.inverse();
 
-    const int beginx = (int) (dest.x1 + 0.5);
-    const int beginy = (int) (dest.y1 + 0.5);
-    const int endx = (int) (dest.x2 + 0.5);
-    const int endy = (int) (dest.y2 + 0.5);
+    const int beginx = (int) (dest.x1 + 0.5f);
+    const int beginy = (int) (dest.y1 + 0.5f);
+    const int endx = (int) (dest.x2 + 1.5f);
+    const int endy = (int) (dest.y2 + 1.5f);
     for (int by = beginy; by <= endy; ++by) {
         if (by < 0 || by >= 128) {
             continue;
@@ -70,26 +70,72 @@ void Graphics::draw_sub_image(Image &img, float x, float y, float sx, float sy,
                 continue;
             }
             Color c = img.get_px(origin.get_x() + sx, origin.get_y() + sy);
-
-            float real_a = c.a * opacity;
-            if (real_a <= 0.5f) {
-                continue;
-            }
-            unsigned pos = by * 160 + bx;
-            float r = (float)buffer[pos * 3], g = (float)buffer[pos * 3 + 1],
-                b = (float)buffer[pos * 3 + 2], a = (float)alpha[pos];
-
-            float prc = real_a / (real_a + a);
-            r = c.r * prc + r * (1.0f - prc);
-            g = c.g * prc + g * (1.0f - prc);
-            b = c.b * prc + b * (1.0f - prc);
-            a = real_a * prc + a * (1.0f - prc);
-            buffer[pos * 3] = (u8)b;
-            buffer[pos * 3 + 1] = (u8)g;
-            buffer[pos * 3 + 2] = (u8)r;
-            alpha[pos] = (u8)a;
+            draw_px(bx, by, c);
         }
     }
+}
+
+void Graphics::draw_rect(float x, float y, float w, float h, float strength, Color color) {
+    const int beginx = (int) (x + 0.5f);
+    const int beginy = (int) (y + 0.5f);
+    const int endx = (int) (x + w + 1.5f);
+    const int endy = (int) (y + h + 1.5f);
+    const int s = (int) (strength + 0.5f);
+
+    for (int by = beginy; by <= endy; ++by) {
+        if (by < 0 || by >= 128) {
+            continue;
+        }
+
+        for (int bx = beginx; bx <= endx; ++bx) {
+            if (bx < 0 || bx >= 160) {
+                continue;
+            }
+            if (bx <= beginx + s || bx >= endx - s || by <= beginy + s || by >= endy - s) {
+                draw_px(bx, by, color);
+            }
+        }
+    }
+}
+
+void Graphics::fill_rect(float x, float y, float w, float h, Color color) {
+    const int beginx = (int) (x + 0.5f);
+    const int beginy = (int) (y + 0.5f);
+    const int endx = (int) (x + w + 1.5f);
+    const int endy = (int) (y + h + 1.5f);
+
+    for (int by = beginy; by <= endy; ++by) {
+        if (by < 0 || by >= 128) {
+            continue;
+        }
+
+        for (int bx = beginx; bx <= endx; ++bx) {
+            if (bx < 0 || bx >= 160) {
+                continue;
+            }
+            draw_px(bx, by, color);
+        }
+    }
+}
+
+void Graphics::draw_px(int x, int y, Color& color) {
+    float real_a = color.a * opacity;
+    if (real_a <= 0.5f) {
+        return;
+    }
+    unsigned pos = y * 160 + x;
+    float r = (float)buffer[pos * 3], g = (float)buffer[pos * 3 + 1],
+        b = (float)buffer[pos * 3 + 2], a = (float)alpha[pos];
+
+    float prc = real_a >= 254.5f ? 1.0f : real_a / (real_a + a);
+    r = color.r * prc + r * (1.0f - prc);
+    g = color.g * prc + g * (1.0f - prc);
+    b = color.b * prc + b * (1.0f - prc);
+    a = real_a * prc + a * (1.0f - prc);
+    buffer[pos * 3] = (u8)b;
+    buffer[pos * 3 + 1] = (u8)g;
+    buffer[pos * 3 + 2] = (u8)r;
+    alpha[pos] = (u8)a;
 }
 
 void Graphics::set_transform(Matrix3 t) {
