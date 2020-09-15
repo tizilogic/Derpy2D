@@ -40,8 +40,8 @@ Color Image::get_px(float x, float y, int filter) {
     switch (filter)
     {
     case IMAGE_FILTER_NEAREST: {
-        ix = width - (unsigned)(x + 0.5f);
-        iy = height - (unsigned)(y + 0.5f);
+        ix = (unsigned)(x + 0.5f);
+        iy = (unsigned)(y + 0.5f);
         r = (float)imgdata[iy * width * 4 + ix * 4];
         g = (float)imgdata[iy * width * 4 + ix * 4 + 1];
         b = (float)imgdata[iy * width * 4 + ix * 4 + 2];
